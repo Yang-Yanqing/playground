@@ -1,0 +1,87 @@
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tasks – Minimal Demo</title>
+<style>
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 780px; margin: 40px auto; padding: 0 16px; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 8px 10px; border-bottom: 1px solid #ddd; text-align: left; }
+tr:hover { background: #fafafa; }
+.row { display: flex; gap: 8px; margin: 12px 0; }
+button { padding: 8px 12px; cursor: pointer; }
+select, input { padding: 8px; }
+small { color: #666; }
+</style>
+</head>
+<body>
+<header>
+<h1>Tasks</h1>
+<small>A minimal page to prove the API works.</small>
+</header>
+
+
+<div class="row">
+<input id="name" placeholder="Task name" />
+<button id="add">Add</button>
+<select id="filter">
+<option value="">All</option>
+<option>PENDING</option>
+<option>RUNNING</option>
+<option>DONE</option>
+<option>FAILED</option>
+</select>
+<button id="reload">Reload</button>
+</div>
+
+
+<table>
+<thead>
+<tr><th>ID</th><th>Name</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+
+<script>
+// Very small, framework-free UI to satisfy "table + a button".
+const tbody = document.getElementById('tbody');
+const nameInput = document.getElementById('name');
+const addBtn = document.getElementById('add');
+const reloadBtn = document.getElementById('reload');
+const filterSel = document.getElementById('filter');
+
+
+async function list() {
+const q = filterSel.value ? `?status=${filterSel.value}` : '';
+const res = await fetch(`/api/tasks${q}`);
+const json = await res.json();
+render(json.data || []);
+}
+
+
+function render(rows) {
+tbody.innerHTML = rows.map(r => `
+<tr>
+<td>${r.id}</td>
+<td>${r.name}</td>
+<td>${r.status}</td>
+<td>${new Date(r.created_at).toLocaleString()}</td>
+<td>
+<select data-id="${r.id}" class="status">
+${['PENDING','RUNNING','DONE','FAILED'].map(s => `<option ${s===r.status?'selected':''}>${s}</option>`).join('')}
+</select>
+</td>
+</tr>
+`).join('');
+
+
+// Attach change handlers for status updates
+document.querySelectorAll('select.status').forEach(sel => {
+sel.addEventListener('change', async (e) => {
+const id = e.target.getAttribute('data-id');
+const status = e.target.value;
+await fetch(`/api/tasks/${id}`, {
+method: 'PATCH',
+</html>
