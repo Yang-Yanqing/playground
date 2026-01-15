@@ -24,3 +24,4 @@ CREATE TABLE IF NOT EXISTS imported_records (
 
 CREATE INDEX IF NOT EXISTS idx_import_jobs_created_at ON import_jobs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_imported_records_job_id ON imported_records(job_id);
+            

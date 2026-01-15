@@ -9,3 +9,7 @@ export default defineConfig({
     }
   }
 });
+
+
+
+// Why it exists：把 API 代理到后端，避免 CORS 麻烦（本地最稳）。
