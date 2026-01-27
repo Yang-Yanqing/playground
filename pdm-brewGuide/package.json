@@ -1,7 +1,0 @@
-{
-  "name": "pdm-brewGuide",
-  "private": true,
-  "version": "1.0.0",
-  "workspaces": ["frontend"],
-  "license": "MIT"
-}
