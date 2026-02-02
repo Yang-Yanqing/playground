@@ -1,16 +1,18 @@
-import {createTask,findTask,statusTransition} from "./service"
+import {createTask,findTask,statusTransition,workerTask} from "./service"
 
 
 const createTaskController=(req,res)=>{
   const taskName=req.body.name;
   try {
-    const task=createTask(taskName)
+    const task=createTask(taskName);
+    workerTask(task.id);
     return res.status(201).json(task);
-  } catch (error) {
+      } catch (error) {
     return res.status(400).json({error:"Task create failed"});
   }
   
 };
+
 
 const findTaskController=async (req,res)=>{
     const taskId=req.params.id;
@@ -20,7 +22,7 @@ const findTaskController=async (req,res)=>{
     } catch (error) {
         return res.status(404).json({error:"Task not found"});
     }
-}
+};
 
 const statusTransitionController=(req,res)=>{
     const nextStatus=req.body.status;
