@@ -1,8 +1,6 @@
-import { console } from "inspector";
-
 const logInfo=(event,meta)=>{
     const payload={
-        level:"infor",
+        level:"info",
         event,
         at:new Date().toISOString(),
         ...meta,
@@ -10,9 +8,10 @@ const logInfo=(event,meta)=>{
     console.log(JSON.stringify(payload));
 };
 
+
 const logError=(event,meta)=>{
     const payload={
-        level:"infor",
+        level:"error",
         event,
         at:new Date().toDateString(),
         ...meta,

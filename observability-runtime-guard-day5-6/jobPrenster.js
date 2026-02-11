@@ -1,8 +1,6 @@
 //Why exists?
 //Because those date of error cannot go frontend for the gurrente of safe.
 
-import { error } from "console";
-
 export const toJobResponse=(job)=>{
     const jobId=job.id;
     const jobStatus=job.status;
