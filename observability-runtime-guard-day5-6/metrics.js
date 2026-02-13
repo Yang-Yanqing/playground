@@ -6,14 +6,14 @@ const metrics={
 
 
 const inc=(metricsName,n=1)=>{
-    if(!metricsName){
+    if(!(metricsName in metrics)){
         throw new Error(`Unknow metrics:${metricsName}`);
     }
     metrics[metricsName]+=n;
 };
 
 const set=(metricsName,value)=>{
-    if(!metricsName){
+    if(!(metricsName in metrics)){
         throw new Error(`Unknow metrics:${metricsName}`);
     }
     metrics[metricsName]=value;

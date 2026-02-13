@@ -1,7 +1,10 @@
 import { handleTransitions } from "./domain.js";
-import ulid from 'ulid';
+import {ulid} from 'ulid';
 import { logInfo,logError } from "./logger.js";
 import { inc } from "./metrics.js";
+
+const JOB_SIM_MS=30000;
+const JOB_TIMEOUT_MS=60000;
 
 
 const sleep=async(ms)=>{
@@ -9,10 +12,10 @@ const sleep=async(ms)=>{
 }
 const jobs=new Map();
 
-export const createJob=(jobName)=>{
+export const createJob=(jobName,meta={})=>{
     if(!jobName){throw new Error("Job name is required")};
     const jobId=ulid();
-    const jobName=jobName;
+    
     const jobStatus="PENDING";
     const createdAt=Date.now();
     const updatedAt=createdAt;
@@ -25,6 +28,7 @@ export const createJob=(jobName)=>{
         id:jobId,
         name:jobName,
         status:jobStatus,
+        requestId:meta.requestId??null,
         createdAt:createdAt,
         updatedAt:updatedAt,
         result:result,
@@ -34,8 +38,9 @@ export const createJob=(jobName)=>{
     }
 
     jobs.set(jobId,job);
-    logInfo("Job_created",job);
+    logInfo("job_created",{jobId,status:jobStatus,requestId:meta.requestId});
     inc("job_total");
+    setImmediate(()=>workJob(jobId))
     return job;
 };
 
@@ -56,35 +61,40 @@ export const workJob=async (jobId)=>{
     found.status=nextStatus;
     found.jobStartedAt=jobStartedAt;
     inc("job_running");
-    logInfo("Status_changed",{found,from:currentStatus,to:nextStatus});
+    logInfo("job_status_changed",{jobId,from:currentStatus,to:nextStatus});
     jobs.set(jobId,found);
     try {
-        await sleep(30000);
+        await sleep(JOB_SIM_MS);
         const jobStatus=found.status;
         const jobWorkTime=Date.now()-found.jobStartedAt;
-        if(Number(jobWorkTime)<=30000){
+        if(Number(jobWorkTime)<=JOB_TIMEOUT_MS){
         if(handleTransitions(jobStatus,"DONE")){
             found.status="DONE";
+            found.result="COMPLETED"
             found.updatedAt=Date.now();
             jobs.set(jobId,found);
+
             inc("job_running",-1);
-            logInfo("Status_changed",{found,from:jobStatus,to:"DONE"});
+            logInfo("job_status_changed",{jobId,from:jobStatus,to:"DONE"});
             return found;
         }}else{
             found.status="FAILED";
             found.errorCode="JOB_TIMEOUT";
-            found.errorDetail="exceeded 30000 ms"
-            logError("job_failed",found)
+            found.errorDetail="exceeded 60000 ms";
+            found.updatedAt=Date.now();
+            jobs.set(jobId,found);
+            logError("job_timeout",{jobId,requestId:found.requestId,errorCode:found.errorCode,errorDetail:found.errorDetail})
             inc("job_running",-1);
             inc("job_failed");
+            return found;
         }
     } catch (error) {
         found.status="FAILED";
         found.errorCode="JOB_FAILED";
-        found.errorDetail=Error instanceof Error ? error.message:String(error);
+        found.errorDetail=error instanceof Error ? error.message:String(error);
         found.updatedAt=Date.now();
         jobs.set(jobId,found);
-        logError("Job_Failed",found);
+        logError("job_Failed",found);
         inc("job_running",-1);
         inc("job_failed")
         return found;

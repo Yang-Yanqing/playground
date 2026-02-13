@@ -6,8 +6,8 @@ const ALLOWED_STATUS={
 }
 
 const STATUS_FLOW={
-    PENDING:[RUNNING],
-    RUNNING:[DONE,FAILED],
+    PENDING:["RUNNING"],
+    RUNNING:["DONE","FAILED"],
     DONE:[],
     FAILED:[]
 }

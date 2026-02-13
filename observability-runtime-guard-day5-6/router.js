@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createJobController,findJobController,workJobController } from "./controllers.js";
+import { createJobController,findJobController} from "./controllers.js";
 
 const router=Router();
 
@@ -7,6 +7,6 @@ router.post("/jobs",createJobController);
 
 router.get("/jobs/:id",findJobController);
 
-router.post("/jobs/:id/work",workJobController);
+// router.post("/jobs/:id/work",workJobController);
 
 export default router;

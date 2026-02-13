@@ -6,13 +6,13 @@ export const toJobResponse=(job)=>{
     const jobStatus=job.status;
 
     let jobRespose={
-        id:jobId,
+        jobId,
         status:jobStatus,
     }
 
     if(jobStatus==="FAILED"){
         return {
-            id:jobId,
+            jobId,
             status:jobStatus,
             error:{
                 code:job.errorCode??"JOB_FAILED",

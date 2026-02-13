@@ -1,4 +1,4 @@
-import ulid from 'ulid'
+import {ulid} from 'ulid'
 
 const requestIdMiddleware=(req,res,next)=>{
     const requestId=ulid();

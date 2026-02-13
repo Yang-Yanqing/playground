@@ -13,7 +13,7 @@ const logError=(event,meta)=>{
     const payload={
         level:"error",
         event,
-        at:new Date().toDateString(),
+        at:new Date().toISOString(),
         ...meta,
     }
     console.log(JSON.stringify(payload));
